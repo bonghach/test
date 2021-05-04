@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+			</head>
+
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script> <!-----버전 로테이션 안 먹음,, ---------->
+<script src="https://raw.githack.com/jeromeetienne/AR.js/2.0.8/aframe/build/aframe-ar.js"></script>
+<script src="https://rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.loaders.min.js"></script>
+
+  <script language="javascript" type="text/javascript" src="jquery-3.1.1.min.js"></script> <!---버튼 토글 쇼우앤 하이드------->
+
+  <script language="javascript" type="text/javascript">
+  $(document).ready(function(){
+
+    $("#button2").click(function(){
+
+         $("#a").toggle();
+         $("#b").toggle();
+
+     });
+
+  });
+  </script>
+
+<script>
+var markerFound = 0;
+AFRAME.registerComponent('button', {
+init: function () {
+var elem = document.documentElement;
+var marker = document.querySelector("#marker");
+var fullbutton = document.querySelector("#fullscreen");
+var button = document.querySelector("#mutebutton");
+var Video_0 = document.querySelector("#Video_Asset_0");
+marker.addEventListener("markerFound", function (evt) {
+markerFound = 1;
+Video_0.play();
+});
+marker.addEventListener("markerLost", function (evt) {
+markerFound = 0;
+Video_0.pause();
+});
+button.addEventListener("click", function(evt){
+console.log("button clicked")
+if(Video_0.muted==true){
+button.innerHTML="음향제거";
+Video_0.muted=false;
+}else{
+button.innerHTML="음향재생";
+Video_0.muted=true;
+}
+});
+
+        fullbutton.addEventListener("click", function (evt) {
+            if (fullscreen == 0) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                    /* Firefox */
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                    /* Chrome, Safari and Opera */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                    /* IE/Edge */
+                elem.msRequestFullscreen();
+            }
+                fullbutton.setAttribute("src", "./image/fullscreen.png");
+            fullscreen = 0;
+  
+			} else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                }
+                fullbutton.setAttribute("src", "./image/fullscreen.png");
+                fullscreen = 0;
+            }
+        });
+},
+tick: function (totalTime, deltaTime) {
+var dTime = deltaTime / 1000;
+
+if (markerFound == 1) {
+}
+
+
+        function bezierEvaluate(p0, p1, p2, p3, t) {
+            var u = (1 - t);                
+            var uu = u * u;                
+            var uuu = u * u * u;               
+            var tt = t * t;               
+            var ttt = t * t * t;               
+            //B(t) = (1-t)^3*P0 3*(1-t)^2*t*P1 3*(1-t)*t^2*P2 t^3*P3 , 0 < t < 1               
+            return (uuu * p0 + 3 * uu * t * p1 + 3 * u * tt * p2 + ttt * p3);          
+        }          
+        function bezierPath(p0, p1, p2, p3, t) {               
+            return new THREE.Vector3(                   
+                bezierEvaluate(p0.x, p1.x, p2.x, p3.x, t),                   
+                bezierEvaluate(p0.y, p1.y, p2.y, p3.y, t),                   
+                bezierEvaluate(p0.z, p1.z, p2.z, p3.z, t)               
+            );           
+        }     
+    }
+});
+</script>
+
+
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+
+
+
+
+<div id="a" style=" position:absolute; width:100%; center; left:0px; right:0px; top:0px; z-index:5; background:#000000; background : rgba(0,0,0,0.4); padding:0px;" >
+<p align="left"><span style="font-size:16pt;color:#fff;">
+ &nbsp;&nbsp; 화면이 정상적이지 않으면 크게보기 버튼을 두 번 터치해 주세요  &nbsp;&nbsp;  <button id="button2" class="button2">X : 안내글 닫기</button>  </span></p>
+</div>
+<div id="b" style="display: none">  </div>
+
+<div style=" position:absolute; width:300px; center; left:auto; right:40px; bottom:10px; z-index:5; background:#000000; background : rgba(0,0,0,0); padding:0px;" >
+<p align="right"><span style="font-size:16pt;color:#fff;"> <a href="#"><button class="button3">예약하기</button></a> </span></p>
+</div>
+
+
+
+<div class="layer" style='z-index: 2;'>   
+ <input type="image" id="fullscreen" src="./image/fullscreen.png"> </input>
+</div>
+
+<div class="layer2" style='z-index: 0;'>   
+ <button id="mutebutton"></button>
+</div>
+
+<a-scene embedded arjs='debugUIEnabled: false; sourceType: webcam' vr-mode-ui='enabled: false'>
+<a-entity id="mouseCursor" cursor="rayOrigin: mouse" raycaster="objects: .intersectable; useWorldCoordinates: true;"></a-entity>
+
+<a-assets>
+<video id="Video_Asset_0" autoplay="false" loop crossorigin="anonymous" src="video/video.mp4" webkit-playsinline playsinline ></video>
+</a-assets>
+
+<a-marker id="marker" type="pattern" preset="custom" src="4djoy.patt" url="4djoy.patt" emitevents="true" button>
+<a-video width="2.5" height="1.4" src="#Video_Asset_0" class="intersectable" position="0 0 0" rotation="270 0 0" color="#FFFFFF" ></a-video>
+
+<a-entity gltf-model="model/scene.gltf" position="-0.8 0 -0.8" scale="0.5 0.5 0.5" rotation="-25 0 0" class="clickable" gesture-handler animation-mixer></a-entity>
+
+<a-entity gltf-model="globe/scene.gltf" position="0.8 1 -1" scale="0.003 0.003 0.003" rotation="-25 0 0">
+	
+	<a-animation attribute="rotation" to="0 360 0" dur="9000" repeat="indefinite" easing="linear"></a-animation>
+</a-entity>
+
+<a-image src="./image/ar_left.png" scale="2.5 1.4 1" class="clickable" position="-2.6 0 0" rotation="-90 0 0" gesture-handler></a-image>
+<a-image src="./image/ar_right.png" scale="2.5 1.4 1" class="clickable" position="2.6 0 0" rotation="-90 0 0" gesture-handler></a-image>
+</a-marker>
+
+<a-entity camera></a-entity>
+</a-scene>
+
+
+
+<style type="text/css">
+body, a, span {
+	font-family: Tahoma; font-size: 10pt; font-weight: bold; 
+}
+body { margin: 0; padding: 0; }
+
+.abc{
+ position: absolute
+}
+.layer{
+  position:absolute;
+  top:0;right:0;bottom:-70%;left:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  display:-webkit-flex;
+  -webkit-align-item;center;
+  -webkit-justify-content:center;
+}
+.layer .content{background:#f00}
+
+.layer2{
+  position:absolute;
+  right:0;bottom:-600%;left:0;
+}
+
+.button2 {
+  background-color: #ff0000; /* Green */
+  border: none;
+  color: yellow;
+  padding: 2px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 23px;
+}
+
+.button3 {
+  background-color: #009933; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 23px;
+}
+
+a:link {
+color: white;
+text-decoration: none;
+}
+a:visited {
+color: white;
+text-decoration: none;
+}
+a:hover {
+color: white;
+text-decoration: none;
+}
+a:active {
+color: white;
+text-decoration: none;
+}
+
+</style>
+
+</body>
+</html>
